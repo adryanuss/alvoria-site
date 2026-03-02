@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — ALVÓRIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,800&display=swap" rel="stylesheet">
+<style>
+:root{--black:#080808;--dark:#0f0f0f;--card:#141414;--purple:#9B30FF;--magenta:#CC2FFF;--violet:#7B00FF;--white:#F5F5F5;--muted:rgba(245,245,245,0.65);--border:rgba(255,255,255,0.08);--green:#2FFF8B;--yellow:#FFD700;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--white);min-height:100vh;}
+
+/* LOGIN */
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:48px 40px;width:100%;max-width:400px;text-align:center;}
+.login-logo{font-weight:800;font-size:1.6rem;letter-spacing:.1em;margin-bottom:8px;}
+.login-logo em{font-style:normal;color:var(--magenta);}
+.login-sub{font-size:.8rem;color:var(--muted);margin-bottom:36px;}
+.login-field{text-align:left;margin-bottom:16px;}
+.login-field label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.login-field input{width:100%;background:rgba(255,255,255,.05);border:1.5px solid var(--border);border-radius:10px;padding:13px 16px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;}
+.login-field input:focus{border-color:rgba(155,48,255,.6);}
+.login-btn{width:100%;margin-top:8px;padding:14px;border-radius:50px;background:linear-gradient(135deg,var(--violet),var(--magenta));color:#fff;font-weight:700;font-size:.9rem;border:none;cursor:pointer;transition:all .25s;box-shadow:0 0 30px rgba(155,48,255,.3);}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(155,48,255,.5);}
+.login-error{color:#ff6b6b;font-size:.8rem;margin-top:10px;display:none;}
+
+/* ADMIN PANEL */
+.admin-screen{display:none;}
+nav{position:sticky;top:0;width:100%;z-index:200;padding:16px 32px;background:rgba(8,8,8,0.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-weight:800;font-size:1.2rem;letter-spacing:.1em;}
+.nav-logo em{font-style:normal;color:var(--magenta);}
+.nav-logo span{font-size:.7rem;color:var(--muted);margin-left:10px;font-weight:400;}
+.nav-actions{display:flex;gap:12px;align-items:center;}
+.badge-count{background:var(--magenta);color:#fff;font-size:.7rem;font-weight:800;padding:3px 10px;border-radius:50px;}
+.btn-logout{padding:8px 18px;border-radius:50px;border:1px solid var(--border);color:var(--muted);font-size:.78rem;background:none;cursor:pointer;transition:all .2s;}
+.btn-logout:hover{border-color:rgba(255,100,100,.4);color:#ff6b6b;}
+
+.admin-body{max-width:1200px;margin:0 auto;padding:32px;}
+
+/* STATS BAR */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 22px;}
+.stat-card .sn{font-size:2rem;font-weight:800;color:var(--magenta);}
+.stat-card .sl{font-size:.73rem;color:var(--muted);margin-top:4px;}
+
+/* FILTERS */
+.filters{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;}
+.filter-btn{padding:8px 18px;border-radius:50px;border:1px solid var(--border);color:var(--muted);font-size:.78rem;background:none;cursor:pointer;transition:all .2s;}
+.filter-btn.active,.filter-btn:hover{border-color:rgba(155,48,255,.5);color:var(--white);background:rgba(155,48,255,.1);}
+.search-input{flex:1;min-width:200px;background:var(--card);border:1px solid var(--border);border-radius:50px;padding:8px 18px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;outline:none;}
+.search-input::placeholder{color:var(--muted);}
+
+/* PROPOSTAS */
+.empty-state{text-align:center;padding:80px 20px;color:var(--muted);}
+.empty-state .ei{font-size:3rem;margin-bottom:16px;}
+.proposta-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px;margin-bottom:14px;cursor:pointer;transition:all .2s;}
+.proposta-card:hover{border-color:rgba(155,48,255,.3);transform:translateX(4px);}
+.pc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.pc-info h3{font-weight:700;font-size:1rem;margin-bottom:4px;}
+.pc-info .pc-sub{font-size:.78rem;color:var(--muted);}
+.pc-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px;}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;font-weight:700;padding:4px 10px;border-radius:50px;letter-spacing:.06em;text-transform:uppercase;}
+.tag.tipo{background:rgba(155,48,255,.2);color:#e0a0ff;border:1px solid rgba(155,48,255,.3);}
+.tag.orc{background:rgba(47,255,139,.1);color:var(--green);border:1px solid rgba(47,255,139,.2);}
+.tag.prazo{background:rgba(255,215,0,.1);color:var(--yellow);border:1px solid rgba(255,215,0,.2);}
+.tag.status{cursor:pointer;}
+.tag.novo{background:rgba(47,130,255,.15);color:#6fb3ff;border:1px solid rgba(47,130,255,.3);}
+.tag.em-analise{background:rgba(255,165,0,.15);color:#ffaa44;border:1px solid rgba(255,165,0,.3);}
+.tag.proposta-enviada{background:rgba(155,48,255,.2);color:#e0a0ff;border:1px solid rgba(155,48,255,.3);}
+.tag.fechado{background:rgba(47,255,139,.15);color:var(--green);border:1px solid rgba(47,255,139,.3);}
+.tag.cancelado{background:rgba(255,100,100,.1);color:#ff8080;border:1px solid rgba(255,100,100,.2);}
+.pc-date{font-size:.72rem;color:var(--muted);}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:500;padding:20px;overflow-y:auto;}
+.modal-overlay.active{display:flex;align-items:flex-start;justify-content:center;}
+.modal{background:var(--dark);border:1px solid var(--border);border-radius:24px;width:100%;max-width:680px;padding:36px;margin:auto;position:relative;}
+.modal-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,.08);border:none;color:var(--muted);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1rem;transition:all .2s;}
+.modal-close:hover{background:rgba(255,100,100,.2);color:#ff8080;}
+.modal h2{font-weight:800;font-size:1.4rem;margin-bottom:6px;}
+.modal .modal-sub{font-size:.82rem;color:var(--muted);margin-bottom:28px;}
+.modal-section{margin-bottom:22px;}
+.modal-section h4{font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--magenta);margin-bottom:10px;}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-field{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.modal-field .mf-label{font-size:.68rem;color:var(--muted);margin-bottom:3px;}
+.modal-field .mf-val{font-size:.88rem;font-weight:600;}
+.modal-field.full{grid-column:1/-1;}
+.color-dots{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.color-dot{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.2);}
+.status-select{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;width:100%;margin-top:4px;}
+.btn-wa-modal{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:50px;background:linear-gradient(135deg,#128C7E,#25D366);color:#fff;font-weight:700;font-size:.85rem;text-decoration:none;margin-top:16px;transition:all .2s;}
+.btn-wa-modal:hover{transform:translateY(-2px);}
+
+@media(max-width:600px){
+  .stats-bar{grid-template-columns:1fr 1fr;}
+  .modal-grid{grid-template-columns:1fr;}
+  .admin-body{padding:20px;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">ALV<em>Ó</em>RIA</div>
+    <div class="login-sub">Painel Administrativo</div>
+    <div class="login-field"><label>Usuário</label><input type="text" id="loginUser" placeholder="admin"></div>
+    <div class="login-field"><label>Senha</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="loginError">Usuário ou senha incorretos.</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="admin-screen" id="adminScreen">
+  <nav>
+    <div>
+      <div class="nav-logo">ALV<em>Ó</em>RIA <span>Admin</span></div>
+    </div>
+    <div class="nav-actions">
+      <span class="badge-count" id="badgeCount">0 propostas</span>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </nav>
+
+  <div class="admin-body">
+    <!-- STATS -->
+    <div class="stats-bar">
+      <div class="stat-card"><div class="sn" id="statTotal">0</div><div class="sl">Total de propostas</div></div>
+      <div class="stat-card"><div class="sn" id="statNovos">0</div><div class="sl">Novos (não vistos)</div></div>
+      <div class="stat-card"><div class="sn" id="statAnalise">0</div><div class="sl">Em análise</div></div>
+      <div class="stat-card"><div class="sn" id="statFechados">0</div><div class="sl">Fechados</div></div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+      <input class="search-input" type="text" id="searchInput" placeholder="🔍 Buscar por nome, email..." oninput="renderPropostas()">
+      <button class="filter-btn active" onclick="setFilter('todos',this)">Todos</button>
+      <button class="filter-btn" onclick="setFilter('novo',this)">Novos</button>
+      <button class="filter-btn" onclick="setFilter('em-analise',this)">Em análise</button>
+      <button class="filter-btn" onclick="setFilter('proposta-enviada',this)">Proposta enviada</button>
+      <button class="filter-btn" onclick="setFilter('fechado',this)">Fechados</button>
+    </div>
+
+    <!-- LIST -->
+    <div id="propostasList"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ============ CREDENTIALS (mude aqui!) ============
+const CREDENTIALS = { user: 'admin', pass: 'alvoria2025' };
+
+// ============ STATE ============
+let propostas = [];
+let currentFilter = 'todos';
+let selectedId = null;
+
+// ============ LOGIN ============
+function doLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if(u === CREDENTIALS.user && p === CREDENTIALS.pass){
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminScreen').style.display = 'block';
+    loadPropostas();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function doLogout(){
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('adminScreen').style.display = 'none';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+// ============ DATA ============
+function loadPropostas(){
+  try {
+    propostas = JSON.parse(localStorage.getItem('alvoria_propostas')||'[]');
+  } catch(e){ propostas = []; }
+  renderPropostas();
+  updateStats();
+}
+
+function savePropostas(){
+  localStorage.setItem('alvoria_propostas', JSON.stringify(propostas));
+}
+
+function updateStats(){
+  document.getElementById('statTotal').textContent = propostas.length;
+  document.getElementById('statNovos').textContent = propostas.filter(p=>p.status==='novo').length;
+  document.getElementById('statAnalise').textContent = propostas.filter(p=>p.status==='em-analise').length;
+  document.getElementById('statFechados').textContent = propostas.filter(p=>p.status==='fechado').length;
+  document.getElementById('badgeCount').textContent = propostas.length + ' proposta' + (propostas.length!==1?'s':'');
+}
+
+// ============ FILTERS ============
+function setFilter(f, btn){
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPropostas();
+}
+
+// ============ RENDER ============
+function renderPropostas(){
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let filtered = propostas.filter(p=>{
+    const match = !q || (p.nome||'').toLowerCase().includes(q) || (p.email||'').toLowerCase().includes(q) || (p.empresa||'').toLowerCase().includes(q);
+    const statusMatch = currentFilter==='todos' || p.status===currentFilter;
+    return match && statusMatch;
+  });
+
+  const el = document.getElementById('propostasList');
+  if(!filtered.length){
+    el.innerHTML = `<div class="empty-state"><div class="ei">📭</div><p>${propostas.length===0?'Nenhuma proposta recebida ainda.<br>Compartilhe o link da página /proposta!':'Nenhuma proposta encontrada com esse filtro.'}</p></div>`;
+    return;
+  }
+
+  const labelMap = {
+    institucional:'Institucional',landing:'Landing Page',ecommerce:'E-commerce',
+    portfolio:'Portfólio',blog:'Blog',outro:'Outro'
+  };
+  const orcMap = {ate2k:'Até R$2k','2a5k':'R$2-5k','5a10k':'R$5-10k','mais10k':'+R$10k'};
+  const prazoMap = {urgente:'Urgente',2semanas:'2 semanas','1mes':'1 mês',flexivel:'Flexível'};
+  const statusLabel = {novo:'Novo','em-analise':'Em análise','proposta-enviada':'Proposta enviada',fechado:'Fechado ✓',cancelado:'Cancelado'};
+
+  el.innerHTML = filtered.map(p=>`
+    <div class="proposta-card" onclick="openModal(${p.id})">
+      <div class="pc-top">
+        <div class="pc-info">
+          <h3>${p.nome||'Sem nome'} ${p.empresa?'<span style="font-weight:400;color:var(--muted)">· '+p.empresa+'</span>':''}</h3>
+          <div class="pc-sub">${p.email||''} ${p.whatsapp?'· '+p.whatsapp:''}</div>
+        </div>
+        <div class="pc-date">${p.dataEnvio||''}</div>
+      </div>
+      <div class="pc-meta">
+        ${p.tipoSite?`<span class="tag tipo">${labelMap[p.tipoSite]||p.tipoSite}</span>`:''}
+        ${p.orcamento?`<span class="tag orc">${orcMap[p.orcamento]||p.orcamento}</span>`:''}
+        ${p.prazo?`<span class="tag prazo">${prazoMap[p.prazo]||p.prazo}</span>`:''}
+        <span class="tag status ${p.status||'novo'}">${statusLabel[p.status||'novo']}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============ MODAL ============
+function openModal(id){
+  const p = propostas.find(x=>x.id===id);
+  if(!p) return;
+  selectedId = id;
+
+  const labelMap = {institucional:'Institucional',landing:'Landing Page',ecommerce:'E-commerce',portfolio:'Portfólio',blog:'Blog',outro:'Outro'};
+  const orcMap = {ate2k:'Até R$ 2.000','2a5k':'R$ 2.000 – R$ 5.000','5a10k':'R$ 5.000 – R$ 10.000','mais10k':'Acima de R$ 10.000'};
+  const prazoMap = {urgente:'Urgente (até 1 semana)','2semanas':'2 semanas','1mes':'1 mês',flexivel:'Flexível'};
+  const conteudoMap = {tenho:'Já tem o conteúdo',preciso:'Precisa criar'};
+  const statusOpts = ['novo','em-analise','proposta-enviada','fechado','cancelado'];
+  const statusLabel = {novo:'Novo','em-analise':'Em análise','proposta-enviada':'Proposta enviada',fechado:'Fechado',cancelado:'Cancelado'};
+
+  const cores = (p.cores||[]).map(c=>`<div class="color-dot" style="background:${c}" title="${c}"></div>`).join('');
+  const inspiracoes = [p.inspiracao1,p.inspiracao2,p.inspiracao3].filter(Boolean)
+    .map(u=>`<a href="${u}" target="_blank" style="color:var(--magenta);font-size:.8rem;word-break:break-all;">${u}</a>`).join('<br>');
+
+  document.getElementById('modalBody').innerHTML = `
+    <h2>${p.nome||'Sem nome'}</h2>
+    <div class="modal-sub">${p.empresa||''} · ${p.dataEnvio||''}</div>
+
+    <div class="modal-section">
+      <h4>Status da proposta</h4>
+      <select class="status-select" onchange="updateStatus(this.value)">
+        ${statusOpts.map(s=>`<option value="${s}" ${(p.status||'novo')===s?'selected':''}>${statusLabel[s]}</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="modal-section">
+      <h4>Contato</h4>
+      <div class="modal-grid">
+        <div class="modal-field"><div class="mf-label">Nome</div><div class="mf-val">${p.nome||'—'}</div></div>
+        <div class="modal-field"><div class="mf-label">Empresa</div><div class="mf-val">${p.empresa||'—'}</div></div>
+        <div class="modal-field"><div class="mf-label">E-mail</div><div class="mf-val">${p.email||'—'}</div></div>
+        <div class="modal-field"><div class="mf-label">WhatsApp</div><div class="mf-val">${p.whatsapp||'—'}</div></div>
+      </div>
+      ${p.whatsapp?`<a class="btn-wa-modal" href="https://wa.me/55${p.whatsapp.replace(/\D/g,'')}" target="_blank">💬 Abrir WhatsApp</a>`:''}
+    </div>
+
+    <div class="modal-section">
+      <h4>Projeto</h4>
+      <div class="modal-grid">
+        <div class="modal-field"><div class="mf-label">Tipo de site</div><div class="mf-val">${labelMap[p.tipoSite]||p.tipoSite||'—'}</div></div>
+        <div class="modal-field"><div class="mf-label">Conteúdo</div><div class="mf-val">${conteudoMap[p.conteudo]||p.conteudo||'—'}</div></div>
+        <div class="modal-field"><div class="mf-label">Páginas</div><div class="mf-val">${p.paginas||'—'}</div></div>
+        <div class="modal-field"><div class="mf-label">Imagens</div><div class="mf-val">${p.imagens||'—'}</div></div>
+        <div class="modal-field"><div class="mf-label">Prazo</div><div class="mf-val">${prazoMap[p.prazo]||p.prazo||'—'}</div></div>
+        <div class="modal-field"><div class="mf-label">Orçamento</div><div class="mf-val">${orcMap[p.orcamento]||p.orcamento||'—'}</div></div>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <h4>Identidade Visual</h4>
+      <div class="modal-grid">
+        <div class="modal-field"><div class="mf-label">Tem identidade?</div><div class="mf-val">${p.temIdentidade==='sim'?'Sim':'Não, vamos criar'}</div></div>
+        <div class="modal-field"><div class="mf-label">Estilo</div><div class="mf-val">${p.estiloVisual||'—'}</div></div>
+        ${cores?`<div class="modal-field full"><div class="mf-label">Cores</div><div class="color-dots">${cores}</div></div>`:''}
+      </div>
+    </div>
+
+    ${inspiracoes?`<div class="modal-section"><h4>Referências / Inspiração</h4><div class="modal-field" style="grid-column:1/-1"><div class="mf-label">Sites</div>${inspiracoes}</div>${p.gostaSites?`<div class="modal-field full" style="margin-top:8px"><div class="mf-label">O que gosta</div><div class="mf-val" style="font-weight:400">${p.gostaSites}</div></div>`:''}</div>`:''}
+
+    ${p.observacoes?`<div class="modal-section"><h4>Observações</h4><div class="modal-field"><div class="mf-val" style="font-weight:400">${p.observacoes}</div></div></div>`:''}
+
+    <div class="modal-section">
+      <h4>Origem</h4>
+      <div class="modal-field" style="display:inline-block;padding:10px 16px;"><div class="mf-label">Como encontrou</div><div class="mf-val">${p.comoEncontrou||'—'}</div></div>
+    </div>
+  `;
+
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('active');
+  selectedId = null;
+}
+
+function updateStatus(val){
+  const p = propostas.find(x=>x.id===selectedId);
+  if(p){ p.status = val; savePropostas(); renderPropostas(); updateStats(); }
+}
+
+// ============ DEMO DATA (remova em produção) ============
+function addDemoData(){
+  if(propostas.length>0) return;
+  const demos = [
+    {id:1001,nome:'Carlos Mendonça',empresa:'Mendonça Advogados',email:'carlos@mendonca.adv.br',whatsapp:'47991234567',tipoSite:'institucional',conteudo:'tenho',paginas:'7',imagens:'20',temIdentidade:'sim',estiloVisual:'corporativo',cores:['#2F8BFF','#111111'],prazo:'1mes',orcamento:'2a5k',inspiracao1:'https://brasilprev.com.br',gostaSites:'Gosto do layout limpo e profissional',observacoes:'Preciso de formulário de contato e integração com WhatsApp',comoEncontrou:'instagram',dataEnvio:'02/03/2026, 09:14:32',status:'novo'},
+    {id:1002,nome:'Fernanda Lima',empresa:'Studio Fem',email:'fernanda@studiofem.com.br',whatsapp:'47987654321',tipoSite:'ecommerce',conteudo:'preciso',paginas:'15',imagens:'80',temIdentidade:'nao',estiloVisual:'descolado',cores:['#FF2F6B','#FFB800'],prazo:'2semanas',orcamento:'5a10k',inspiracao1:'https://arezzo.com.br',inspiracao2:'https://zara.com',gostaSites:'Foco em mobile e fotos de produto em destaque',observacoes:'Vendo roupas femininas, preciso de carrinho e PIX',comoEncontrou:'anuncio',dataEnvio:'01/03/2026, 15:30:11',status:'em-analise'},
+  ];
+  propostas = demos;
+  savePropostas();
+}
+
+// init
+addDemoData();
+</script>
+</body>
+</html>
