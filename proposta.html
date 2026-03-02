@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitar Proposta — ALVÓRIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,800&display=swap" rel="stylesheet">
+<style>
+:root{--black:#080808;--dark:#0f0f0f;--card:#141414;--purple:#9B30FF;--magenta:#CC2FFF;--violet:#7B00FF;--white:#F5F5F5;--muted:rgba(245,245,245,0.65);--border:rgba(255,255,255,0.08);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--white);min-height:100vh;overflow-x:hidden;}
+
+/* NAV */
+nav{position:sticky;top:0;width:100%;z-index:200;padding:18px 40px;background:rgba(8,8,8,0.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+.nav-inner{max-width:800px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-weight:800;font-size:1.3rem;letter-spacing:.1em;text-decoration:none;color:var(--white);}
+.nav-logo em{font-style:normal;color:var(--magenta);}
+.nav-back{font-size:.8rem;color:var(--muted);text-decoration:none;transition:color .2s;}
+.nav-back:hover{color:var(--white);}
+
+/* PROGRESS */
+.progress-wrap{max-width:800px;margin:0 auto;padding:32px 40px 0;}
+.progress-bar{height:3px;background:rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--magenta));border-radius:10px;transition:width .4s ease;}
+.progress-text{display:flex;justify-content:space-between;margin-top:10px;font-size:.72rem;color:var(--muted);}
+
+/* MAIN */
+.wizard-wrap{max-width:800px;margin:0 auto;padding:40px 40px 80px;}
+
+/* STEP */
+.step{display:none;animation:stepIn .4s ease both;}
+.step.active{display:block;}
+@keyframes stepIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+.step-num{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--magenta);font-weight:700;margin-bottom:12px;}
+.step-title{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:8px;}
+.step-desc{font-size:.9rem;color:var(--muted);margin-bottom:36px;line-height:1.6;}
+
+/* OPTIONS GRID */
+.options-grid{display:grid;gap:12px;}
+.options-grid.col2{grid-template-columns:1fr 1fr;}
+.options-grid.col3{grid-template-columns:1fr 1fr 1fr;}
+
+.option-card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:20px 22px;cursor:pointer;transition:all .2s;position:relative;}
+.option-card:hover{border-color:rgba(155,48,255,.4);transform:translateY(-2px);}
+.option-card.selected{border-color:var(--magenta);background:rgba(155,48,255,.12);box-shadow:0 0 30px rgba(204,47,255,.15);}
+.option-card .oc-icon{font-size:1.8rem;margin-bottom:10px;}
+.option-card .oc-title{font-weight:700;font-size:.92rem;margin-bottom:4px;}
+.option-card .oc-desc{font-size:.75rem;color:var(--muted);line-height:1.4;}
+.option-card .check{position:absolute;top:14px;right:14px;width:20px;height:20px;border-radius:50%;border:2px solid var(--border);transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:.65rem;}
+.option-card.selected .check{background:var(--magenta);border-color:var(--magenta);}
+
+/* INPUTS */
+.field{margin-bottom:20px;}
+.field label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+.field input,.field textarea,.field select{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px 18px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.92rem;outline:none;transition:border-color .2s;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:rgba(155,48,255,.6);}
+.field textarea{resize:vertical;min-height:100px;}
+.field select option{background:var(--dark);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+/* RANGE */
+.range-wrap{display:flex;align-items:center;gap:16px;}
+.range-wrap input[type=range]{flex:1;-webkit-appearance:none;height:4px;background:rgba(255,255,255,.1);border-radius:10px;outline:none;}
+.range-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--magenta);cursor:pointer;box-shadow:0 0 10px rgba(204,47,255,.5);}
+.range-val{min-width:60px;text-align:center;font-weight:700;color:var(--magenta);font-size:1rem;}
+
+/* COLOR PICKER */
+.color-section{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.color-swatch{width:40px;height:40px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;}
+.color-swatch.active{border-color:white;transform:scale(1.15);}
+.custom-color{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;}
+.custom-color input[type=color]{border:none;background:none;cursor:pointer;width:24px;height:24px;}
+.custom-color span{font-size:.78rem;color:var(--muted);}
+
+/* BUTTONS */
+.btn-nav{display:flex;gap:12px;margin-top:40px;}
+.btn-next{padding:14px 36px;border-radius:50px;background:linear-gradient(135deg,var(--violet),var(--magenta));color:#fff;font-weight:700;font-size:.9rem;border:none;cursor:pointer;transition:all .25s;box-shadow:0 0 30px rgba(155,48,255,.3);}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(155,48,255,.5);}
+.btn-next:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.btn-prev{padding:14px 28px;border-radius:50px;border:1.5px solid var(--border);color:var(--muted);font-size:.9rem;background:none;cursor:pointer;transition:all .2s;}
+.btn-prev:hover{border-color:rgba(155,48,255,.4);color:var(--white);}
+
+/* SUCCESS */
+.success-screen{text-align:center;padding:60px 20px;display:none;}
+.success-screen.active{display:block;animation:stepIn .5s ease both;}
+.success-icon{font-size:4rem;margin-bottom:24px;filter:drop-shadow(0 0 20px rgba(204,47,255,.6));}
+.success-screen h2{font-size:2.2rem;font-weight:800;margin-bottom:16px;}
+.success-screen h2 em{font-style:normal;color:var(--magenta);}
+.success-screen p{color:var(--muted);font-size:1rem;line-height:1.7;max-width:480px;margin:0 auto 32px;}
+.timer-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(155,48,255,.15);border:1px solid rgba(155,48,255,.4);border-radius:50px;padding:12px 24px;font-size:.85rem;color:#e0a0ff;font-weight:600;}
+.timer-dot{width:8px;height:8px;background:var(--magenta);border-radius:50%;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+/* SAVING */
+.saving-overlay{display:none;position:fixed;inset:0;background:rgba(8,8,8,.85);backdrop-filter:blur(8px);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+.saving-overlay.active{display:flex;}
+.spinner{width:48px;height:48px;border:3px solid rgba(155,48,255,.2);border-top-color:var(--magenta);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+@media(max-width:600px){
+  nav{padding:16px 20px;}
+  .wizard-wrap,.progress-wrap{padding-left:20px;padding-right:20px;}
+  .options-grid.col2,.options-grid.col3{grid-template-columns:1fr;}
+  .field-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">ALV<em>Ó</em>RIA</a>
+    <a class="nav-back" href="/">← Voltar ao site</a>
+  </div>
+</nav>
+
+<div class="progress-wrap">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:14%"></div></div>
+  <div class="progress-text"><span id="progressLabel">Passo 1 de 7</span><span id="progressPct">14%</span></div>
+</div>
+
+<div class="wizard-wrap">
+
+  <!-- STEP 1: Dados pessoais -->
+  <div class="step active" id="step1">
+    <div class="step-num">Passo 01 — Identificação</div>
+    <h2 class="step-title">Quem é você?</h2>
+    <p class="step-desc">Vamos começar com seus dados de contato.</p>
+    <div class="field-row">
+      <div class="field"><label>Nome completo</label><input type="text" id="nome" placeholder="Seu nome"></div>
+      <div class="field"><label>WhatsApp</label><input type="tel" id="whatsapp" placeholder="+55 (47) 99999-9999"></div>
+    </div>
+    <div class="field"><label>E-mail</label><input type="email" id="email" placeholder="seu@email.com"></div>
+    <div class="field"><label>Empresa / Marca (opcional)</label><input type="text" id="empresa" placeholder="Nome da sua empresa"></div>
+    <div class="btn-nav"><button class="btn-next" onclick="nextStep(1)">Próximo →</button></div>
+  </div>
+
+  <!-- STEP 2: Tipo de site -->
+  <div class="step" id="step2">
+    <div class="step-num">Passo 02 — Tipo de site</div>
+    <h2 class="step-title">Que tipo de site<br>você precisa?</h2>
+    <p class="step-desc">Selecione a opção que melhor descreve seu projeto.</p>
+    <div class="options-grid col2">
+      <div class="option-card" onclick="selectOption(this,'tipoSite','institucional')">
+        <div class="oc-icon">🏢</div>
+        <div class="oc-title">Site Institucional</div>
+        <div class="oc-desc">Apresenta sua empresa, serviços e equipe.</div>
+        <div class="check">✓</div>
+      </div>
+      <div class="option-card" onclick="selectOption(this,'tipoSite','landing')">
+        <div class="oc-icon">🎯</div>
+        <div class="oc-title">Landing Page</div>
+        <div class="oc-desc">Página única focada em conversão e vendas.</div>
+        <div class="check">✓</div>
+      </div>
+      <div class="option-card" onclick="selectOption(this,'tipoSite','ecommerce')">
+        <div class="oc-icon">🛒</div>
+        <div class="oc-title">E-commerce</div>
+        <div class="oc-desc">Loja virtual para vender produtos online.</div>
+        <div class="check">✓</div>
+      </div>
+      <div class="option-card" onclick="selectOption(this,'tipoSite','portfolio')">
+        <div class="oc-icon">🎨</div>
+        <div class="oc-title">Portfólio</div>
+        <div class="oc-desc">Mostra seu trabalho e projetos anteriores.</div>
+        <div class="check">✓</div>
+      </div>
+      <div class="option-card" onclick="selectOption(this,'tipoSite','blog')">
+        <div class="oc-icon">✍️</div>
+        <div class="oc-title">Blog / Conteúdo</div>
+        <div class="oc-desc">Publicação de artigos, notícias ou tutoriais.</div>
+        <div class="check">✓</div>
+      </div>
+      <div class="option-card" onclick="selectOption(this,'tipoSite','outro')">
+        <div class="oc-icon">💡</div>
+        <div class="oc-title">Outro</div>
+        <div class="oc-desc">Descreverei nas observações finais.</div>
+        <div class="check">✓</div>
+      </div>
+    </div>
+    <div class="btn-nav">
+      <button class="btn-prev" onclick="prevStep(2)">← Anterior</button>
+      <button class="btn-next" id="next2" onclick="nextStep(2)" disabled>Próximo →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Páginas e imagens -->
+  <div class="step" id="step3">
+    <div class="step-num">Passo 03 — Estrutura</div>
+    <h2 class="step-title">Quantas páginas<br>e imagens?</h2>
+    <p class="step-desc">Nos ajude a estimar o tamanho do projeto.</p>
+    <div class="field">
+      <label>Número de páginas: <span id="paginasVal" style="color:var(--magenta)">5</span></label>
+      <div class="range-wrap">
+        <input type="range" min="1" max="30" value="5" id="paginas" oninput="updateRange('paginas','paginasVal')">
+        <div class="range-val" id="paginasDisp">5</div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:28px">
+      <label>Quantidade média de imagens: <span id="imagensVal" style="color:var(--magenta)">10</span></label>
+      <div class="range-wrap">
+        <input type="range" min="0" max="100" value="10" step="5" id="imagens" oninput="updateRange('imagens','imagensVal')">
+        <div class="range-val" id="imagensDisp">10</div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:28px">
+      <label>Conteúdo (textos e imagens)</label>
+      <div class="options-grid col2" style="margin-top:8px">
+        <div class="option-card" onclick="selectOption(this,'conteudo','tenho')">
+          <div class="oc-icon">✅</div>
+          <div class="oc-title">Já tenho o conteúdo</div>
+          <div class="oc-desc">Vou fornecer textos e imagens prontos.</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="option-card" onclick="selectOption(this,'conteudo','preciso')">
+          <div class="oc-icon">✍️</div>
+          <div class="oc-title">Preciso criar</div>
+          <div class="oc-desc">Necessito de ajuda com textos e/ou imagens.</div>
+          <div class="check">✓</div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-nav">
+      <button class="btn-prev" onclick="prevStep(3)">← Anterior</button>
+      <button class="btn-next" id="next3" onclick="nextStep(3)" disabled>Próximo →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Cores e identidade -->
+  <div class="step" id="step4">
+    <div class="step-num">Passo 04 — Identidade Visual</div>
+    <h2 class="step-title">Qual é a sua<br>identidade visual?</h2>
+    <p class="step-desc">Cores e estilo ajudam a criar algo que realmente represente sua marca.</p>
+    <div class="field">
+      <label>Você já tem uma identidade visual?</label>
+      <div class="options-grid col2" style="margin-top:8px">
+        <div class="option-card" onclick="selectOption(this,'temIdentidade','sim');document.getElementById('identidadeDetalhes').style.display='block'">
+          <div class="oc-icon">🎨</div>
+          <div class="oc-title">Sim, já tenho</div>
+          <div class="oc-desc">Logo, cores e fontes definidos.</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="option-card" onclick="selectOption(this,'temIdentidade','nao');document.getElementById('identidadeDetalhes').style.display='none'">
+          <div class="oc-icon">🆕</div>
+          <div class="oc-title">Não, vamos criar</div>
+          <div class="oc-desc">Preciso de ajuda para definir o visual.</div>
+          <div class="check">✓</div>
+        </div>
+      </div>
+    </div>
+    <div id="identidadeDetalhes" style="display:none;margin-top:20px">
+      <div class="field">
+        <label>Cores principais da marca</label>
+        <div class="color-section" id="colorSection">
+          <div class="color-swatch" style="background:#CC2FFF" onclick="toggleColor(this,'#CC2FFF')"></div>
+          <div class="color-swatch" style="background:#2F8BFF" onclick="toggleColor(this,'#2F8BFF')"></div>
+          <div class="color-swatch" style="background:#FF2F6B" onclick="toggleColor(this,'#FF2F6B')"></div>
+          <div class="color-swatch" style="background:#2FFFB4" onclick="toggleColor(this,'#2FFFB4')"></div>
+          <div class="color-swatch" style="background:#FFB800" onclick="toggleColor(this,'#FFB800')"></div>
+          <div class="color-swatch" style="background:#FF5C00" onclick="toggleColor(this,'#FF5C00')"></div>
+          <div class="color-swatch" style="background:#F5F5F5;border:1px solid rgba(255,255,255,.2)" onclick="toggleColor(this,'#F5F5F5')"></div>
+          <div class="color-swatch" style="background:#111111" onclick="toggleColor(this,'#111111')"></div>
+          <div class="custom-color">
+            <input type="color" id="customColor" value="#9B30FF" onchange="addCustomColor(this.value)">
+            <span>Outra cor</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:20px">
+      <label>Estilo visual desejado</label>
+      <div class="options-grid col3" style="margin-top:8px">
+        <div class="option-card" onclick="selectOption(this,'estiloVisual','moderno')">
+          <div class="oc-icon">⚡</div>
+          <div class="oc-title">Moderno</div>
+          <div class="oc-desc">Clean, tech, minimalista.</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="option-card" onclick="selectOption(this,'estiloVisual','elegante')">
+          <div class="oc-icon">💎</div>
+          <div class="oc-title">Elegante</div>
+          <div class="oc-desc">Sofisticado, premium, luxuoso.</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="option-card" onclick="selectOption(this,'estiloVisual','descolado')">
+          <div class="oc-icon">🔥</div>
+          <div class="oc-title">Descolado</div>
+          <div class="oc-desc">Bold, criativo, impactante.</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="option-card" onclick="selectOption(this,'estiloVisual','corporativo')">
+          <div class="oc-icon">🏛️</div>
+          <div class="oc-title">Corporativo</div>
+          <div class="oc-desc">Profissional, confiável, sólido.</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="option-card" onclick="selectOption(this,'estiloVisual','jovem')">
+          <div class="oc-icon">🎮</div>
+          <div class="oc-title">Jovem / Fun</div>
+          <div class="oc-desc">Colorido, dinâmico, divertido.</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="option-card" onclick="selectOption(this,'estiloVisual','sem preferencia')">
+          <div class="oc-icon">🤷</div>
+          <div class="oc-title">Sem preferência</div>
+          <div class="oc-desc">Confio na sua criatividade!</div>
+          <div class="check">✓</div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-nav">
+      <button class="btn-prev" onclick="prevStep(4)">← Anterior</button>
+      <button class="btn-next" id="next4" onclick="nextStep(4)" disabled>Próximo →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Inspiração -->
+  <div class="step" id="step5">
+    <div class="step-num">Passo 05 — Referências</div>
+    <h2 class="step-title">Sites que<br>você admira?</h2>
+    <p class="step-desc">Compartilhe URLs de sites que você gosta. Isso nos ajuda a entender seu gosto visual.</p>
+    <div class="field">
+      <label>Site de inspiração 1</label>
+      <input type="url" id="inspiracao1" placeholder="https://exemplo.com">
+    </div>
+    <div class="field">
+      <label>Site de inspiração 2 (opcional)</label>
+      <input type="url" id="inspiracao2" placeholder="https://exemplo.com">
+    </div>
+    <div class="field">
+      <label>Site de inspiração 3 (opcional)</label>
+      <input type="url" id="inspiracao3" placeholder="https://exemplo.com">
+    </div>
+    <div class="field">
+      <label>O que você mais gosta nesses sites?</label>
+      <textarea id="gostaSites" placeholder="Ex: Gosto do menu animado, das cores vibrantes, da forma como apresentam os produtos..."></textarea>
+    </div>
+    <div class="btn-nav">
+      <button class="btn-prev" onclick="prevStep(5)">← Anterior</button>
+      <button class="btn-next" onclick="nextStep(5)">Próximo →</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: Prazo e orçamento -->
+  <div class="step" id="step6">
+    <div class="step-num">Passo 06 — Prazo & Investimento</div>
+    <h2 class="step-title">Quando e quanto<br>você quer investir?</h2>
+    <p class="step-desc">Nos ajude a montar a proposta mais adequada para você.</p>
+    <div class="field">
+      <label>Prazo desejado para entrega</label>
+      <div class="options-grid col2" style="margin-top:8px">
+        <div class="option-card" onclick="selectOption(this,'prazo','urgente')">
+          <div class="oc-icon">🚀</div>
+          <div class="oc-title">Urgente</div>
+          <div class="oc-desc">Preciso em até 1 semana.</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="option-card" onclick="selectOption(this,'prazo','2semanas')">
+          <div class="oc-icon">⏱️</div>
+          <div class="oc-title">2 semanas</div>
+          <div class="oc-desc">Tenho um pouco mais de tempo.</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="option-card" onclick="selectOption(this,'prazo','1mes')">
+          <div class="oc-icon">📅</div>
+          <div class="oc-title">1 mês</div>
+          <div class="oc-desc">Sem pressa, quero qualidade.</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="option-card" onclick="selectOption(this,'prazo','flexivel')">
+          <div class="oc-icon">🤝</div>
+          <div class="oc-title">Flexível</div>
+          <div class="oc-desc">Definimos juntos conforme a proposta.</div>
+          <div class="check">✓</div>
+        </div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:24px">
+      <label>Faixa de investimento</label>
+      <div class="options-grid col2" style="margin-top:8px">
+        <div class="option-card" onclick="selectOption(this,'orcamento','ate2k')">
+          <div class="oc-icon">💰</div>
+          <div class="oc-title">Até R$ 2.000</div>
+          <div class="oc-desc">Projetos mais simples e objetivos.</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="option-card" onclick="selectOption(this,'orcamento','2a5k')">
+          <div class="oc-icon">💰💰</div>
+          <div class="oc-title">R$ 2.000 – R$ 5.000</div>
+          <div class="oc-desc">Sites completos e bem estruturados.</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="option-card" onclick="selectOption(this,'orcamento','5a10k')">
+          <div class="oc-icon">💰💰💰</div>
+          <div class="oc-title">R$ 5.000 – R$ 10.000</div>
+          <div class="oc-desc">Projetos robustos com funcionalidades.</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="option-card" onclick="selectOption(this,'orcamento','mais10k')">
+          <div class="oc-icon">🏆</div>
+          <div class="oc-title">Acima de R$ 10.000</div>
+          <div class="oc-desc">Projeto premium sem restrições.</div>
+          <div class="check">✓</div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-nav">
+      <button class="btn-prev" onclick="prevStep(6)">← Anterior</button>
+      <button class="btn-next" id="next6" onclick="nextStep(6)" disabled>Próximo →</button>
+    </div>
+  </div>
+
+  <!-- STEP 7: Observações finais -->
+  <div class="step" id="step7">
+    <div class="step-num">Passo 07 — Finalização</div>
+    <h2 class="step-title">Mais algum<br>detalhe?</h2>
+    <p class="step-desc">Conte-nos tudo o que achar relevante. Quanto mais detalhes, melhor a proposta.</p>
+    <div class="field">
+      <label>Observações adicionais</label>
+      <textarea id="observacoes" rows="5" placeholder="Ex: Tenho concorrentes específicos, preciso de integração com WhatsApp, quero um chat ao vivo, preciso de formulário de contato, etc..."></textarea>
+    </div>
+    <div class="field">
+      <label>Como você nos encontrou?</label>
+      <select id="comoEncontrou">
+        <option value="">Selecione...</option>
+        <option value="instagram">Instagram</option>
+        <option value="facebook">Facebook</option>
+        <option value="google">Google</option>
+        <option value="indicacao">Indicação</option>
+        <option value="anuncio">Anúncio</option>
+        <option value="outro">Outro</option>
+      </select>
+    </div>
+    <div class="btn-nav">
+      <button class="btn-prev" onclick="prevStep(7)">← Anterior</button>
+      <button class="btn-next" onclick="submitForm()">Enviar proposta 🚀</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">🎉</div>
+    <h2>Proposta <em>enviada!</em></h2>
+    <p>Recebemos todas as suas informações. Nossa equipe vai analisar seu projeto e em até <strong>24 horas</strong> você receberá uma proposta personalizada com a demonstração do seu novo site.</p>
+    <div class="timer-badge">
+      <div class="timer-dot"></div>
+      Proposta em até 24 horas
+    </div>
+    <br><br>
+    <a href="/" style="color:var(--muted);font-size:.85rem;text-decoration:none;">← Voltar ao site da Alvória</a>
+  </div>
+
+</div>
+
+<!-- SAVING OVERLAY -->
+<div class="saving-overlay" id="savingOverlay">
+  <div class="spinner"></div>
+  <p style="color:var(--muted);font-size:.85rem;">Enviando sua proposta...</p>
+</div>
+
+<script>
+// ============ STATE ============
+const data = {
+  tipoSite:'', conteudo:'', temIdentidade:'', estiloVisual:'',
+  prazo:'', orcamento:'', cores:[]
+};
+let currentStep = 1;
+const totalSteps = 7;
+
+// ============ NAVIGATION ============
+function goToStep(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+  currentStep = n;
+  updateProgress(n);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function nextStep(from){
+  if(from < totalSteps) goToStep(from+1);
+}
+
+function prevStep(from){
+  if(from > 1) goToStep(from-1);
+}
+
+function updateProgress(n){
+  const pct = Math.round((n/totalSteps)*100);
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressLabel').textContent = 'Passo '+n+' de '+totalSteps;
+  document.getElementById('progressPct').textContent = pct+'%';
+}
+
+// ============ OPTIONS ============
+function selectOption(el, key, val){
+  // find siblings (same parent)
+  const siblings = el.parentElement.querySelectorAll('.option-card');
+  siblings.forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  data[key] = val;
+  // enable next button for this step
+  const stepMap = {tipoSite:2,conteudo:3,temIdentidade:4,estiloVisual:4,prazo:6,orcamento:6};
+  if(stepMap[key]){
+    const btn = document.getElementById('next'+stepMap[key]);
+    if(btn) checkStepReady(stepMap[key]);
+  }
+}
+
+function checkStepReady(step){
+  const conditions = {
+    2: ()=> data.tipoSite !== '',
+    3: ()=> data.conteudo !== '',
+    4: ()=> data.temIdentidade !== '' && data.estiloVisual !== '',
+    6: ()=> data.prazo !== '' && data.orcamento !== ''
+  };
+  if(conditions[step]){
+    const btn = document.getElementById('next'+step);
+    if(btn) btn.disabled = !conditions[step]();
+  }
+}
+
+// Watch step4 dual selection
+const origSelect = selectOption;
+function selectOption(el, key, val){
+  const siblings = el.parentElement.querySelectorAll('.option-card');
+  siblings.forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  data[key] = val;
+  [2,3,4,6].forEach(s=>checkStepReady(s));
+}
+
+// ============ RANGE ============
+function updateRange(id, dispId){
+  const v = document.getElementById(id).value;
+  document.getElementById(dispId).textContent = v;
+  data[id] = v;
+}
+
+// ============ COLORS ============
+function toggleColor(el, hex){
+  el.classList.toggle('active');
+  if(el.classList.contains('active')){
+    if(!data.cores.includes(hex)) data.cores.push(hex);
+  } else {
+    data.cores = data.cores.filter(c=>c!==hex);
+  }
+}
+function addCustomColor(hex){
+  if(!data.cores.includes(hex)) data.cores.push(hex);
+}
+
+// ============ SUBMIT ============
+async function submitForm(){
+  const payload = {
+    ...data,
+    nome: document.getElementById('nome').value,
+    whatsapp: document.getElementById('whatsapp').value,
+    email: document.getElementById('email').value,
+    empresa: document.getElementById('empresa').value,
+    paginas: document.getElementById('paginas').value,
+    imagens: document.getElementById('imagens').value,
+    inspiracao1: document.getElementById('inspiracao1').value,
+    inspiracao2: document.getElementById('inspiracao2').value,
+    inspiracao3: document.getElementById('inspiracao3').value,
+    gostaSites: document.getElementById('gostaSites').value,
+    observacoes: document.getElementById('observacoes').value,
+    comoEncontrou: document.getElementById('comoEncontrou').value,
+    dataEnvio: new Date().toLocaleString('pt-BR'),
+    status: 'novo'
+  };
+
+  // Validação básica
+  if(!payload.nome || !payload.whatsapp || !payload.email){
+    alert('Por favor, preencha nome, WhatsApp e e-mail no passo 1.');
+    goToStep(1); return;
+  }
+
+  document.getElementById('savingOverlay').classList.add('active');
+
+  try {
+    // Salvar no localStorage do admin (via chave compartilhada)
+    const key = 'alvoria_propostas';
+    let propostas = [];
+    try { propostas = JSON.parse(localStorage.getItem(key)||'[]'); } catch(e){}
+    payload.id = Date.now();
+    propostas.unshift(payload);
+    localStorage.setItem(key, JSON.stringify(propostas));
+  } catch(e){}
+
+  // Simula delay de envio
+  await new Promise(r=>setTimeout(r,1500));
+
+  document.getElementById('savingOverlay').classList.remove('active');
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('successScreen').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
